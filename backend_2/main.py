@@ -8,5 +8,4 @@ fw = Fw()
 endpoints = Endpoints(fw)
 
 
-app.mount('/endpoints', endpoints.sub_app)
-
+app.mount("/endpoints", endpoints.sub_app)

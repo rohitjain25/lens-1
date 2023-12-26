@@ -1,9 +1,10 @@
 {
     "creating_tables": {
-        "courses": "CREATE TABLE Courses (CourseID INT PRIMARY KEY,CourseName VARCHAR(100) NOT NULL,CourseDescription TEXT,CourseCredits INT CHECK(CourseCredits > 0));",
-        "students": "CREATE TABLE Students (StudentID INT PRIMARY KEY,FirstName VARCHAR(100) NOT NULL,LastName VARCHAR(100) NOT NULL,DateOfBirth DATE NOT NULL,Gender CHAR(1) CHECK(Gender IN ('M', 'F')));",
-        "endpoints": "CREATE TABLE Enrollments (StudentID INT,CourseID INT,EnrollmentDate DATE NOT NULL,Grade VARCHAR(2),FOREIGN KEY (StudentID) REFERENCES Students(StudentID),FOREIGN KEY (CourseID) REFERENCES Courses(CourseID),PRIMARY KEY (StudentID, CourseID));",
-        "faculty": "CREATE TABLE Faculty (FacultyID INT PRIMARY KEY,FirstName VARCHAR(100) NOT NULL,LastName VARCHAR(100) NOT NULL,DateOfBirth DATE NOT NULL,Gender CHAR(1) CHECK(Gender IN ('M', 'F')),Specialization VARCHAR(100) NOT NULL);",
-        "teaches": "CREATE TABLE Teaches (FacultyID INT,CourseID INT,FOREIGN KEY (FacultyID) REFERENCES Faculty(FacultyID),FOREIGN KEY (CourseID) REFERENCES Courses(CourseID),PRIMARY KEY (FacultyID, CourseID));"
+        "courses": "CREATE TABLE if not exists Courses (CourseID INT PRIMARY KEY,CourseName VARCHAR(100) NOT NULL,CourseDescription TEXT,CourseCredits INT CHECK(CourseCredits > 0));",
+        "students": "CREATE TABLE if not exists Students (StudentID INT PRIMARY KEY,FirstName VARCHAR(100) NOT NULL,LastName VARCHAR(100) NOT NULL,DateOfBirth DATE NOT NULL,Gender CHAR(1) CHECK(Gender IN ('M', 'F')));",
+        "endpoints": "CREATE TABLE if not exists Enrollments (StudentID INT,CourseID INT,EnrollmentDate DATE NOT NULL,Grade VARCHAR(2),FOREIGN KEY (StudentID) REFERENCES Students(StudentID),FOREIGN KEY (CourseID) REFERENCES Courses(CourseID),PRIMARY KEY (StudentID, CourseID));",
+        "faculty": "CREATE TABLE if not exists Faculty (FacultyID INT PRIMARY KEY,FirstName VARCHAR(100) NOT NULL,LastName VARCHAR(100) NOT NULL,DateOfBirth DATE NOT NULL,Gender CHAR(1) CHECK(Gender IN ('M', 'F')),Specialization VARCHAR(100) NOT NULL);",
+        "teaches": "CREATE TABLE if not exists Teaches (FacultyID INT,CourseID INT,FOREIGN KEY (FacultyID) REFERENCES Faculty(FacultyID),FOREIGN KEY (CourseID) REFERENCES Courses(CourseID),PRIMARY KEY (FacultyID, CourseID));",
+        "user": "CREATE TABLE if not exists user (userId INTEGER PRIMARY KEY AUTOINCREMENT, email VARCHAR(100) UNIQUE, password VARCHAR(300), first_name VARCHAR(100), last_name VARCHAR(100), role VARCHAR(100))"
     }
 }
