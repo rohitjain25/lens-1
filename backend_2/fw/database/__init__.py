@@ -44,9 +44,11 @@ class _DatabaseOperations:
         query = "INSERT INTO {} ({}) VALUES {};"
         values = tuple([f"{value}" for value in data.values()])
         query = query.format(table_name, ", ".join(data.keys()), values)
-        self.__db.execute(query)
-        self.__db.commit()
-        pass
+        try:
+            self.__db.execute(query)
+            self.__db.commit()
+        except Exception as e:
+            return ("Error while inserting into {}:".format(table_name), e)
 
     def fetch_one(self, table_name, **conditions):
         try:
@@ -66,4 +68,25 @@ class _DatabaseOperations:
                 data[key] = value
             return data
         except:
+            return None
+
+    def delete(self, table_name, **conditions):
+        try:
+            condition = []
+            if conditions:
+                table_columns = self.table_columns(table_name)
+                for key, value in conditions.items():
+                    if key not in table_columns:
+                        return None
+                    condition.append(f"{key} = {value}")
+            condition = " AND ".join(condition)
+            condition = "WHERE " + condition
+            query = f"DELETE from {table_name} {condition};"
+            values = list(self.__db.execute(query))
+            self.__db.commit()
+            data = {}
+            for key, value in zip(self.table_columns(table_name), values):
+                data[key] = value
+            return data
+        except Exception as e:
             return None

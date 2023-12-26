@@ -11,3 +11,6 @@ class SignupForm(BaseModel):
     password: str
     first_name: str
     last_name: str
+
+class DeleteForm(BaseModel):
+    email:str

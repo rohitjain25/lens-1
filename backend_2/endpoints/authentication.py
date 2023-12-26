@@ -1,7 +1,8 @@
 from typing import Annotated
 from fastapi import FastAPI, Response, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-from fw.services.authentication.model import LoginForm, SignupForm
+from fw.common.constants import Authorization_Level
+from fw.services.authentication.model import LoginForm, SignupForm, DeleteForm
 
 
 class Authentication:
@@ -19,13 +20,17 @@ class Authentication:
 
     def __get_endpoints(self):
         @self.__sub_app.post("/signup")
-        def signup(request: SignupForm) -> SignupForm:
-            return self.__fw.services.authentication.signup(request)
+        def signup(request: SignupForm, response:Response) -> SignupForm:
+            return self.__fw.services.authentication.signup(request, response)
 
         @self.__sub_app.post("/login")
         def login(request: LoginForm, response: Response):
             return self.__fw.services.authentication.login(request, response)
 
         @self.__sub_app.get("/user")
-        def user(request=Depends(self.__fw.services.authentication.rbac["level_5"])):
+        def user(request=Depends(self.__fw.services.authentication.rbac[Authorization_Level.LEVEL_5.value])):
             return request
+
+        @self.__sub_app.post("/delete")
+        def delete(request: DeleteForm, response: Response, depends=Depends(self.__fw.services.authentication.rbac[Authorization_Level.LEVEL_1.value])):
+            return self.__fw.services.authentication.delete(request, response)
