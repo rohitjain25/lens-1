@@ -1,4 +1,5 @@
 import json
+from openapi_schema_validator import validate
 
 
 class Utility:
@@ -13,3 +14,19 @@ class Utility:
 
         data = json.load(open(data_path + "/" + filename, "r"))
         return data
+
+    def get_enum_keys(self, cls):
+        keys = []
+        for key in vars(cls).keys():
+            if not((key.startswith('__')) and key.endswith('__')):
+                keys.append(key)
+        return keys
+
+    def get_enum_values(self, cls):
+        values = []
+        dummy_data =vars(cls)
+        for key in dummy_data.keys():
+            if not((key.startswith('__')) and key.endswith('__')):
+                values.append(dummy_data[key])
+        return values
+                

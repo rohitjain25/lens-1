@@ -11,7 +11,7 @@ class Fw:
     @property
     def services(self):
         if self.__services is None:
-            self.__services = Services(self.database)
+            self.__services = Services(self.database, self.common)
         return self.__services
 
     @property

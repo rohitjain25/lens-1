@@ -11,6 +11,7 @@ class Requests:
 
     def post(self, url, payload, headers=None):
         payload = json.dumps(payload)
+        print(payload)
         response = requests.post(url=url, data=payload, headers=headers)
         return _Response(response)
 
@@ -39,6 +40,6 @@ class _Response:
     """A class to wrap the actual request's Response object with a more user-friendly interface."""
     def __init__(self, response:requests.Response):
         self.status_code = response.status_code
-        self.body = response.json()
+        self.body = response.json() if response.content else None
         self.headers = response.headers
         self.cookies = response.cookies

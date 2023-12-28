@@ -1,20 +1,29 @@
 import os
+import copy
 import sqlite3
+from pymongo import MongoClient
 from .authentication import Authentication
 
 
 class Database:
+    __DATABASETYPE = "sqlite3"
     __authentication = None
     __DATABASENAME = "sqlite.db"
+    __CONNECTION_STRING = (
+        "mongodb+srv://lens_rw:hCFgvYUeY62LHeJ3@lens-mdb.ljxkjx4.mongodb.net/"
+    )
     DATA_PATH = os.path.realpath(
         os.path.dirname(os.path.realpath(__file__)) + "/../data/database"
     )
 
     def __init__(self, common_instance):
         self.__common_instance = common_instance
-        self.__con = sqlite3.connect(self.__DATABASENAME, check_same_thread=False)
-        self.__create_tables()
-        self.__con = _DatabaseOperations(self.__con)
+        if self.__DATABASETYPE == "sqlite3":
+            self.__con = sqlite3.connect(self.__DATABASENAME, check_same_thread=False)
+            self.__create_tables()
+            self.__con = _Sqlite3_Client(self.__con)
+        elif self.__DATABASETYPE == "mongodb":
+            self.__con = _MongoDB_CLient(self.__CONNECTION_STRING)
 
     def __create_tables(self):
         queries = self.__common_instance.utility.load_file(
@@ -30,7 +39,7 @@ class Database:
         return self.__authentication
 
 
-class _DatabaseOperations:
+class _Sqlite3_Client:
     def __init__(self, db):
         self.__db = db
 
@@ -50,37 +59,31 @@ class _DatabaseOperations:
         except Exception as e:
             return ("Error while inserting into {}:".format(table_name), e)
 
-    def fetch_one(self, table_name, **conditions):
-        try:
-            condition = []
-            if conditions:
-                table_columns = self.table_columns(table_name)
-                for key, value in conditions.items():
-                    if key not in table_columns:
-                        return None
-                    condition.append(f"{key} = {value}")
-            condition = " AND ".join(condition)
-            condition = "WHERE " + condition
+    def __generate_condition(self, conditions):
+        condition_list = []
+        condition_str = ""
+        for condition in conditions:
+            condition_instance_str = condition["key"] + " = "
+            if condition["type"] == "string":
+                condition["value"] = '"' + str(condition["value"]) + '"'
+            condition_instance_str += condition["value"]
+            condition_list.append(condition_instance_str)
+        if len(condition_list) > 0:
+            condition_str = "WHERE " + " AND ".join(condition_list)
+        return condition_str
+
+    def fetch_one(self, table_name, conditions=[]):
+            condition = self.__generate_condition(conditions)
             query = f"select * from {table_name} {condition};"
             values = list(self.__db.execute(query).fetchone())
             data = {}
             for key, value in zip(self.table_columns(table_name), values):
                 data[key] = value
             return data
-        except:
-            return None
 
-    def delete(self, table_name, **conditions):
+    def delete(self, table_name, conditions=[]):
         try:
-            condition = []
-            if conditions:
-                table_columns = self.table_columns(table_name)
-                for key, value in conditions.items():
-                    if key not in table_columns:
-                        return None
-                    condition.append(f"{key} = {value}")
-            condition = " AND ".join(condition)
-            condition = "WHERE " + condition
+            condition = self.__generate_condition(conditions)
             query = f"DELETE from {table_name} {condition};"
             values = list(self.__db.execute(query))
             self.__db.commit()
@@ -90,3 +93,28 @@ class _DatabaseOperations:
             return data
         except Exception as e:
             return None
+
+
+class _MongoDB_CLient:
+    def __init__(self, connection_string):
+        self.__client = MongoClient(connection_string)
+        self.__client = self.__client["lens_db"]
+
+    def table_columns(self, table_name):
+        pass
+
+    def insert(self, table_name, data, conditions=None):
+        try:
+            self.__client[table_name].insert_one(copy.deepcopy(data))
+        except Exception as e:
+            return {"error": e}
+
+    def fetch_all(self, table_name, conditions):
+        return [data for data in self.__client[table_name].find(conditions)]
+
+    def fetch_one(self, table_name, **conditions):
+        print(conditions)
+        return self.__client[table_name].find_one(conditions)
+
+    def delete(self, table_name, **conditions):
+        pass

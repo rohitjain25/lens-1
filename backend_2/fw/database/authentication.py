@@ -20,7 +20,7 @@ class Authentication:
             return {"error": db_response}, response
 
     def fetch_user(self, email):
-        return self.__db.fetch_one(self.__table_name, email=f'"{email}"')
+        return self.__db.fetch_one(self.__table_name, [{"key":"email", "value":f'{email}', "type": "string"}])
 
     def delete(self, email):
-        return self.__db.delete(self.__table_name, email=f'"{email}"')
+        return self.__db.delete(self.__table_name, [{"key":"email", "value":f'{email}', "type": "string"}])
