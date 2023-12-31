@@ -13,7 +13,7 @@ class SignupForm(BaseModel):
     password: StrictStr
     first_name: StrictStr
     last_name: StrictStr
-    role:StrictStr = None
+    role: Authorization_Level = None
 
 class DeleteForm(BaseModel):
     email:StrictStr

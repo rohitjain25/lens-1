@@ -11,7 +11,6 @@ class Requests:
 
     def post(self, url, payload, headers=None):
         payload = json.dumps(payload)
-        print(payload)
         response = requests.post(url=url, data=payload, headers=headers)
         return _Response(response)
 

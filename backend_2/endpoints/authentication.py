@@ -4,13 +4,14 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
+from fw.services.authentication.response_sample import AuthenticationResponseSample
 from fw.common.constants import Authorization_Level
 from fw.services.authentication.model import LoginForm, SignupForm, DeleteForm, SignupResponseModel
 
 
 class Authentication:
     __sub_app = None
-
+    __response_sample = AuthenticationResponseSample()
     def __init__(self, fw):
         self.__fw = fw
 
@@ -28,7 +29,7 @@ class Authentication:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 content=jsonable_encoder({"detail": exc.errors(), "body": exc.body}),
             )
-        @self.__sub_app.post("/signup")
+        @self.__sub_app.post("/signup", responses={200: self.__response_sample.SignupResponse})
         def signup(request: SignupForm, response:Response) -> SignupResponseModel:
             return self.__fw.services.authentication.signup(request, response)
 

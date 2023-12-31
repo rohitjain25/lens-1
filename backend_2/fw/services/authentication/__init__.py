@@ -10,7 +10,6 @@ from .model import SignupForm, SignupResponseModel
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
-
 def get_current_active_user(token=Depends(oauth2_scheme)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -148,7 +147,6 @@ class _RBAC:
 
     def __call__(self, user: dict = Depends(get_current_active_user)):
         user_role = user.get("role", Authorization_Level.LEVEL_5)
-        print("roles:::", user_role, self.__roles)
         if user_role not in self.__roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

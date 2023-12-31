@@ -1,20 +1,4 @@
-
-
-class MetaConstant(type):
-    def __getattr__(cls, key):
-        try:
-            if key in cls:
-                return cls[key]
-            else:
-                raise Exception(f'Invalid Constant: "{key}" is not in "{cls}"')
-        except Exception:
-            raise Exception(f'Invalid Constant: "{key}" is not in "{cls}"')
-
-    def __setattr__(cls, key, value):
-        raise TypeError
-
-
-class Constants(object, metaclass=MetaConstant):
+class Constants(object, metaclass=type):
     def __getattr__(self, name):
         return self[name]
 
@@ -41,3 +25,8 @@ class Status_Code(Constants):
 
 class Schema_Files(Constants):
     AUTHENTICATION = "authentication_schema.json"
+
+
+class Test_USER_Credentials(Constants):
+    EMAIL = "test_user@lens.com"
+    PASSWORD = "test@123"
